@@ -117,24 +117,24 @@ def overall(
     if df.empty:
         return {"kpis": {}, "buildings": []}
 
-    # Raw KPIs
-    bookable  = float(df["bookable_hours"].sum())
-    remaining = float(df["remaining_avail"].sum())
+    # Normalised KPIs
+    bookable  = float(df["effective_bookable_hours"].sum())
+    remaining = float(df["effective_remaining_hours"].sum())
     booked    = bookable - remaining
     kpis = {
         "bookable":     round(bookable, 1),
         "hours_left":   round(remaining, 1),
         "hours_booked": round(booked, 1),
         "efficiency":   round(booked / bookable * 100, 1) if bookable > 0 else 0,
-        "slots_lt1":    round(float(df["Slots_less_than_1hr"].sum()), 1),
-        "slots_1to2":   round(float(df["Slots_1hr_to_2hr"].sum()), 1),
-        "slots_gt2":    round(float(df["Slots_more_than_2hr"].sum()), 1),
+        "slots_lt1":    round(float(df["effective_Slots_less_than_1hr"].sum()), 1),
+        "slots_1to2":   round(float(df["effective_Slots_1hr_to_2hr"].sum()), 1),
+        "slots_gt2":    round(float(df["effective_Slots_more_than_2hr"].sum()), 1),
     }
 
-    # Per-building efficiency for bar chart
+    # Per-building efficiency for bar chart (normalised)
     bld = (
         df.groupby(["LocationId", "Project"], as_index=False)
-        .agg(bookable=("bookable_hours", "sum"), remaining=("remaining_avail", "sum"))
+        .agg(bookable=("effective_bookable_hours", "sum"), remaining=("effective_remaining_hours", "sum"))
     )
     bld["efficiency"] = (
         (bld["bookable"] - bld["remaining"]) / bld["bookable"] * 100
@@ -196,17 +196,26 @@ def calendar(
     # Calendar: sum per (WeekStartDate, Day)
     cal = (
         df.groupby(["WeekStartDate", "Day"], as_index=False)
-        .agg(hours_left=(rem_col, "sum"), bookable_h=(book_col, "sum"))
+        .agg(
+            hours_left=(rem_col, "sum"),
+            bookable_h=(book_col, "sum"),
+            slots_lt1=(lt1_col, "sum"),
+            slots_1to2=(m12_col, "sum"),
+            slots_gt2=(gt2_col, "sum"),
+        )
     )
-    cal["hours_left"] = cal["hours_left"].round(1)
-    cal["bookable_h"] = cal["bookable_h"].round(1)
+    cal["hours_left"]  = cal["hours_left"].round(1)
+    cal["bookable_h"]  = cal["bookable_h"].round(1)
+    cal["slots_lt1"]   = cal["slots_lt1"].round(1)
+    cal["slots_1to2"]  = cal["slots_1to2"].round(1)
+    cal["slots_gt2"]   = cal["slots_gt2"].round(1)
     cal["pct_booked"] = (
         (cal["bookable_h"] - cal["hours_left"]) / cal["bookable_h"] * 100
     ).where(cal["bookable_h"] > 0, 0).round(1)
 
     weeks = sorted(cal["WeekStartDate"].unique().tolist())
 
-    # Build nested dict: calendar[day][week] = {hours_left, pct_booked}
+    # Build nested dict: calendar[day][week] = {hours_left, pct_booked, slots_*}
     calendar_data: dict = {day: {} for day in DAY_ORDER}
     for _, row in cal.iterrows():
         day = str(row["Day"]).upper().strip()
@@ -214,6 +223,9 @@ def calendar(
             calendar_data[day][row["WeekStartDate"]] = {
                 "hours_left": float(row["hours_left"]),
                 "pct_booked": float(row["pct_booked"]),
+                "slots_lt1":  float(row["slots_lt1"]),
+                "slots_1to2": float(row["slots_1to2"]),
+                "slots_gt2":  float(row["slots_gt2"]),
             }
 
     return {"kpis": kpis, "weeks": weeks, "calendar": calendar_data}

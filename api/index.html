@@ -37,15 +37,15 @@
     }
     #refresh-btn:hover { background: rgba(255,255,255,0.25); }
 
-    /* ── Filters ── */
-    .filter-bar {
-      background: #fff;
+    /* ── Filter bar (inside sections) ── */
+    .section-filters {
+      padding: 14px 24px;
       border-bottom: 1px solid #dde3ed;
-      padding: 14px 32px;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       align-items: flex-end;
+      background: #f9fbfd;
     }
     .filter-group { display: flex; flex-direction: column; gap: 4px; }
     .filter-group label { font-size: 0.72rem; font-weight: 600; color: #556; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -172,6 +172,24 @@
     .heat-7  { background: #f87171; }
     .heat-8  { background: #ef4444; color: #fff; }
 
+    /* Calendar selection */
+    .cal-cell.clickable { cursor: pointer; }
+    .cal-cell.clickable:hover { filter: brightness(0.92); }
+    .cal-cell.sel-active { outline: 3px solid #0e6b82; outline-offset: -3px; position: relative; z-index: 1; }
+    .cal-cell.sel-dim { opacity: 0.35; }
+    .cal-clear-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-bottom: 10px; padding: 4px 12px;
+      background: #e8f4f8; border: 1px solid #0e6b82; color: #0e6b82;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    }
+    .cal-clear-btn:hover { background: #d0eaf2; }
+    .cal-sel-label {
+      display: inline-block; margin-bottom: 10px; padding: 4px 12px;
+      background: #0e6b82; color: #fff;
+      border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+    }
+
     .loading { text-align: center; padding: 40px; color: #778; font-size: 0.9rem; }
     .spinner {
       display: inline-block; width: 22px; height: 22px;
@@ -195,35 +213,13 @@
   </div>
 </header>
 
-<div class="filter-bar">
-  <div class="filter-group"><label>Country</label>
-    <select id="f-country"><option value="all">All Countries</option></select>
-  </div>
-  <div class="filter-group"><label>City</label>
-    <select id="f-city"><option value="all">All Cities</option></select>
-  </div>
-  <div class="filter-group"><label>State</label>
-    <select id="f-state"><option value="all">All States</option></select>
-  </div>
-  <div class="filter-group"><label>Neighbourhood</label>
-    <select id="f-neighbourhood"><option value="all">All Neighbourhoods</option></select>
-  </div>
-  <div class="filter-group"><label>Project</label>
-    <select id="f-project"><option value="all">All Projects</option></select>
-  </div>
-  <div style="display:flex;gap:6px;align-items:flex-end">
-    <button class="btn-apply" onclick="applyFilters()">Apply</button>
-    <button class="btn-reset" onclick="resetFilters()">Reset</button>
-  </div>
-</div>
-
 <div class="page">
 
-  <!-- Section 1: Overall -->
+  <!-- Section 1: Overall (normalised, no filter) -->
   <div class="section" id="sec-overall">
     <div class="section-header">
       <h2>Overall Availability</h2>
-      <span class="badge">RAW · All buildings · Current + 3 weeks</span>
+      <span class="badge">NORMALISED · All buildings · Current + 3 weeks</span>
     </div>
     <div class="section-body">
       <div id="overall-kpis" class="kpi-grid"><div class="loading"><span class="spinner"></span>Loading…</div></div>
@@ -231,11 +227,33 @@
     </div>
   </div>
 
-  <!-- Section 2: Normalised -->
+  <!-- Section 2: Normalised (with its own filters) -->
   <div class="section">
     <div class="section-header">
       <h2>Normalised Availability</h2>
       <span class="badge">Adjusted for fairies covering multiple buildings</span>
+    </div>
+    <!-- Normalised filters -->
+    <div class="section-filters">
+      <div class="filter-group"><label>Country</label>
+        <select id="n-country"><option value="all">All Countries</option></select>
+      </div>
+      <div class="filter-group"><label>City</label>
+        <select id="n-city"><option value="all">All Cities</option></select>
+      </div>
+      <div class="filter-group"><label>State</label>
+        <select id="n-state"><option value="all">All States</option></select>
+      </div>
+      <div class="filter-group"><label>Neighbourhood</label>
+        <select id="n-neighbourhood"><option value="all">All Neighbourhoods</option></select>
+      </div>
+      <div class="filter-group"><label>Project</label>
+        <select id="n-project"><option value="all">All Projects</option></select>
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <button class="btn-apply" onclick="applyNorm()">Apply</button>
+        <button class="btn-reset" onclick="resetNorm()">Reset</button>
+      </div>
     </div>
     <div class="section-body">
       <div id="norm-kpis" class="kpi-grid"><div class="loading"><span class="spinner"></span>Loading…</div></div>
@@ -246,11 +264,33 @@
     </div>
   </div>
 
-  <!-- Section 3: Actual -->
+  <!-- Section 3: Actual (with its own filters) -->
   <div class="section">
     <div class="section-header">
       <h2>Actual Availability</h2>
       <span class="badge">Raw totals — includes fairies covering whole neighbourhoods</span>
+    </div>
+    <!-- Actual filters -->
+    <div class="section-filters">
+      <div class="filter-group"><label>Country</label>
+        <select id="a-country"><option value="all">All Countries</option></select>
+      </div>
+      <div class="filter-group"><label>City</label>
+        <select id="a-city"><option value="all">All Cities</option></select>
+      </div>
+      <div class="filter-group"><label>State</label>
+        <select id="a-state"><option value="all">All States</option></select>
+      </div>
+      <div class="filter-group"><label>Neighbourhood</label>
+        <select id="a-neighbourhood"><option value="all">All Neighbourhoods</option></select>
+      </div>
+      <div class="filter-group"><label>Project</label>
+        <select id="a-project"><option value="all">All Projects</option></select>
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <button class="btn-apply" onclick="applyActual()">Apply</button>
+        <button class="btn-reset" onclick="resetActual()">Reset</button>
+      </div>
     </div>
     <div class="section-body">
       <div id="actual-kpis" class="kpi-grid"><div class="loading"><span class="spinner"></span>Loading…</div></div>
@@ -267,22 +307,48 @@
 const BASE = '';
 let buildingsChart = null;
 
-// ── Filter helpers ──────────────────────────────────────────────────────────
-function params() {
+// ── Per-section state ────────────────────────────────────────────────────────
+const state = {
+  norm:   { data: null, selWeek: null, selDay: null },
+  actual: { data: null, selWeek: null, selDay: null },
+};
+
+// ── Filter param builders ───────────────────────────────────────────────────
+function normParams() {
   const p = new URLSearchParams();
   const v = id => document.getElementById(id).value;
-  if (v('f-country')       !== 'all') p.set('country',       v('f-country'));
-  if (v('f-city')          !== 'all') p.set('city',          v('f-city'));
-  if (v('f-state')         !== 'all') p.set('state',         v('f-state'));
-  if (v('f-neighbourhood') !== 'all') p.set('neighbourhood', v('f-neighbourhood'));
-  if (v('f-project')       !== 'all') p.set('project',       v('f-project'));
+  if (v('n-country')       !== 'all') p.set('country',       v('n-country'));
+  if (v('n-city')          !== 'all') p.set('city',          v('n-city'));
+  if (v('n-state')         !== 'all') p.set('state',         v('n-state'));
+  if (v('n-neighbourhood') !== 'all') p.set('neighbourhood', v('n-neighbourhood'));
+  if (v('n-project')       !== 'all') p.set('project',       v('n-project'));
   return p;
 }
-function applyFilters() { loadAll(); }
-function resetFilters() {
-  ['f-country','f-city','f-state','f-neighbourhood','f-project']
+function actualParams() {
+  const p = new URLSearchParams();
+  const v = id => document.getElementById(id).value;
+  if (v('a-country')       !== 'all') p.set('country',       v('a-country'));
+  if (v('a-city')          !== 'all') p.set('city',          v('a-city'));
+  if (v('a-state')         !== 'all') p.set('state',         v('a-state'));
+  if (v('a-neighbourhood') !== 'all') p.set('neighbourhood', v('a-neighbourhood'));
+  if (v('a-project')       !== 'all') p.set('project',       v('a-project'));
+  return p;
+}
+
+function applyNorm()   { state.norm.selWeek = null; state.norm.selDay = null; loadNorm(); }
+function applyActual() { state.actual.selWeek = null; state.actual.selDay = null; loadActual(); }
+
+function resetNorm() {
+  ['n-country','n-city','n-state','n-neighbourhood','n-project']
     .forEach(id => document.getElementById(id).value = 'all');
-  loadAll();
+  state.norm.selWeek = null; state.norm.selDay = null;
+  loadNorm();
+}
+function resetActual() {
+  ['a-country','a-city','a-state','a-neighbourhood','a-project']
+    .forEach(id => document.getElementById(id).value = 'all');
+  state.actual.selWeek = null; state.actual.selDay = null;
+  loadActual();
 }
 
 // ── Populate selects ────────────────────────────────────────────────────────
@@ -294,11 +360,16 @@ async function loadFilters() {
     sel.innerHTML = `<option value="all">${placeholder}</option>`;
     (vals || []).forEach(v => { if (v) sel.innerHTML += `<option value="${v}">${v}</option>`; });
   };
-  fill('f-country',       d.countries,      'All Countries');
-  fill('f-city',          d.cities,         'All Cities');
-  fill('f-state',         d.states,         'All States');
-  fill('f-neighbourhood', d.neighbourhoods, 'All Neighbourhoods');
-  fill('f-project',       d.projects,       'All Projects');
+  fill('n-country',       d.countries,      'All Countries');
+  fill('n-city',          d.cities,         'All Cities');
+  fill('n-state',         d.states,         'All States');
+  fill('n-neighbourhood', d.neighbourhoods, 'All Neighbourhoods');
+  fill('n-project',       d.projects,       'All Projects');
+  fill('a-country',       d.countries,      'All Countries');
+  fill('a-city',          d.cities,         'All Cities');
+  fill('a-state',         d.states,         'All States');
+  fill('a-neighbourhood', d.neighbourhoods, 'All Neighbourhoods');
+  fill('a-project',       d.projects,       'All Projects');
 }
 
 // ── Formatting ──────────────────────────────────────────────────────────────
@@ -313,6 +384,22 @@ function fmtPct(n) { return n == null ? '—' : n.toFixed(1) + '%'; }
 function renderKpis(containerId, kpis) {
   const el = document.getElementById(containerId);
   if (!kpis || !kpis.bookable) { el.innerHTML = '<p style="color:#889;font-size:.85rem">No data</p>'; return; }
+  const slotCards = kpis.slots_lt1 != null ? `
+    <div class="kpi-card red">
+      <div class="kpi-label">Slots &lt;1 hr</div>
+      <div class="kpi-val">${fmtN(Math.round(kpis.slots_lt1))}</div>
+      <div class="kpi-sub">Short gaps</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Slots 1–2 hr</div>
+      <div class="kpi-val">${fmtN(Math.round(kpis.slots_1to2))}</div>
+      <div class="kpi-sub">Medium slots</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Slots &gt;2 hr</div>
+      <div class="kpi-val">${fmtN(Math.round(kpis.slots_gt2))}</div>
+      <div class="kpi-sub">Long slots</div>
+    </div>` : '';
   el.innerHTML = `
     <div class="kpi-card">
       <div class="kpi-label">Total Bookable</div>
@@ -334,22 +421,39 @@ function renderKpis(containerId, kpis) {
       <div class="kpi-val">${fmtPct(kpis.efficiency)}</div>
       <div class="kpi-sub">% hours booked</div>
     </div>
-    <div class="kpi-card red">
-      <div class="kpi-label">Slots &lt;1 hr</div>
-      <div class="kpi-val">${fmtN(Math.round(kpis.slots_lt1))}</div>
-      <div class="kpi-sub">Short gaps</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Slots 1–2 hr</div>
-      <div class="kpi-val">${fmtN(Math.round(kpis.slots_1to2))}</div>
-      <div class="kpi-sub">Medium slots</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="kpi-label">Slots &gt;2 hr</div>
-      <div class="kpi-val">${fmtN(Math.round(kpis.slots_gt2))}</div>
-      <div class="kpi-sub">Long slots</div>
-    </div>
+    ${slotCards}
   `;
+}
+
+// ── Compute KPIs from filtered calendar cells ────────────────────────────────
+function kpisFromCells(calData, selWeek, selDay) {
+  const { weeks, calendar } = calData;
+  const filteredWeeks = selWeek ? [selWeek] : weeks;
+  const filteredDays  = selDay  ? [selDay]  : DAY_ORDER;
+  let bookable = 0, remaining = 0, slots_lt1 = 0, slots_1to2 = 0, slots_gt2 = 0;
+  filteredDays.forEach(day => {
+    filteredWeeks.forEach(week => {
+      const cell = (calendar[day] || {})[week];
+      if (!cell) return;
+      const pct = cell.pct_booked / 100;
+      const bk  = pct < 1 ? cell.hours_left / (1 - pct) : cell.hours_left;
+      bookable   += bk;
+      remaining  += cell.hours_left;
+      slots_lt1  += cell.slots_lt1  || 0;
+      slots_1to2 += cell.slots_1to2 || 0;
+      slots_gt2  += cell.slots_gt2  || 0;
+    });
+  });
+  const booked = bookable - remaining;
+  return {
+    bookable:     Math.round(bookable   * 10) / 10,
+    hours_left:   Math.round(remaining  * 10) / 10,
+    hours_booked: Math.round(booked     * 10) / 10,
+    efficiency:   bookable > 0 ? Math.round(booked / bookable * 1000) / 10 : 0,
+    slots_lt1:    Math.round(slots_lt1  * 10) / 10,
+    slots_1to2:   Math.round(slots_1to2 * 10) / 10,
+    slots_gt2:    Math.round(slots_gt2  * 10) / 10,
+  };
 }
 
 // ── Buildings bar chart ─────────────────────────────────────────────────────
@@ -357,7 +461,6 @@ function renderBuildingsChart(buildings) {
   if (buildingsChart) buildingsChart.destroy();
   if (!buildings || !buildings.length) return;
 
-  // Show top 30 by efficiency
   const top = buildings.slice(0, 30);
   const labels = top.map(b => b.project || `#${b.location_id}`);
   const effData = top.map(b => b.efficiency);
@@ -427,7 +530,6 @@ const DAY_LABELS = {
 const DAY_ORDER = ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'];
 
 function heatClass(pctBooked) {
-  // pctBooked: 0 = all available (green), 100 = all booked (red)
   if (pctBooked == null) return '';
   if (pctBooked < 10) return 'heat-0';
   if (pctBooked < 20) return 'heat-1';
@@ -446,8 +548,11 @@ function fmtWeekLabel(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function renderCalendar(containerId, data) {
-  const el = document.getElementById(containerId);
+// sec = 'norm' | 'actual'
+function renderCalendar(containerId, sec) {
+  const s   = state[sec];
+  const data = s.data;
+  const el  = document.getElementById(containerId);
   if (!data || !data.weeks || !data.weeks.length) {
     el.innerHTML = '<p style="color:#889;font-size:.85rem">No data</p>';
     return;
@@ -455,25 +560,52 @@ function renderCalendar(containerId, data) {
 
   const { weeks, calendar } = data;
   const cols = weeks.length;
+  const selWeek = s.selWeek;
+  const selDay  = s.selDay;
+  const hasSelection = selWeek || selDay;
 
-  // CSS grid: 1 label col + N week cols
+  // Selection label + clear button
+  let labelHtml = '';
+  if (hasSelection) {
+    const parts = [];
+    if (selDay)  parts.push(DAY_LABELS[selDay] || selDay);
+    if (selWeek) parts.push('Wk of ' + fmtWeekLabel(selWeek));
+    labelHtml = `
+      <span class="cal-sel-label">${parts.join(', ')}</span>
+      <button class="cal-clear-btn" onclick="clearSel('${sec}')">✕ Clear</button>
+    `;
+  }
+
   let html = `<div class="cal-grid" style="grid-template-columns:90px repeat(${cols},1fr)">`;
 
-  // Header row
+  // Corner
   html += `<div class="cal-cell corner week-header"></div>`;
+
+  // Week headers — clickable
   weeks.forEach(w => {
-    html += `<div class="cal-cell week-header">Wk of<br>${fmtWeekLabel(w)}</div>`;
+    const isSelW = selWeek === w;
+    const dimW   = hasSelection && selWeek && !isSelW;
+    const cls    = ['cal-cell','week-header','clickable', isSelW ? 'sel-active' : '', dimW ? 'sel-dim' : ''].filter(Boolean).join(' ');
+    html += `<div class="${cls}" onclick="toggleWeek('${sec}','${w}')" title="Filter to week of ${fmtWeekLabel(w)}">Wk of<br>${fmtWeekLabel(w)}</div>`;
   });
 
   // Day rows
   DAY_ORDER.forEach(day => {
-    html += `<div class="cal-cell day-label">${DAY_LABELS[day]}</div>`;
+    const isSelD = selDay === day;
+    const dimD   = hasSelection && selDay && !isSelD;
+    const dayCls = ['cal-cell','day-label','clickable', isSelD ? 'sel-active' : '', dimD ? 'sel-dim' : ''].filter(Boolean).join(' ');
+    html += `<div class="${dayCls}" onclick="toggleDay('${sec}','${day}')" title="Filter to ${DAY_LABELS[day]}">${DAY_LABELS[day]}</div>`;
+
     weeks.forEach(w => {
-      const cell = (calendar[day] || {})[w];
+      const cell    = (calendar[day] || {})[w];
+      const isSelW  = selWeek === w;
+      const active  = (!selWeek || isSelW) && (!selDay || isSelD);
+      const dim     = hasSelection && !active;
+
       if (!cell) {
-        html += `<div class="cal-cell">—</div>`;
+        html += `<div class="cal-cell${dim ? ' sel-dim' : ''}">—</div>`;
       } else {
-        const cls = heatClass(cell.pct_booked);
+        const cls = [heatClass(cell.pct_booked), dim ? 'sel-dim' : '', (isSelW && isSelD) ? 'sel-active' : ''].filter(Boolean).join(' ');
         html += `<div class="cal-cell ${cls}">
           <div class="cal-val">${fmtH(cell.hours_left)}</div>
           <div class="cal-pct">${fmtPct(cell.pct_booked)} booked</div>
@@ -483,14 +615,62 @@ function renderCalendar(containerId, data) {
   });
 
   html += '</div>';
-  el.innerHTML = html;
+  el.innerHTML = labelHtml + html;
+}
+
+// ── Selection handlers ───────────────────────────────────────────────────────
+function toggleWeek(sec, week) {
+  const s = state[sec];
+  s.selWeek = s.selWeek === week ? null : week;
+  applySelection(sec);
+}
+function toggleDay(sec, day) {
+  const s = state[sec];
+  s.selDay = s.selDay === day ? null : day;
+  applySelection(sec);
+}
+function clearSel(sec) {
+  state[sec].selWeek = null;
+  state[sec].selDay  = null;
+  applySelection(sec);
+}
+
+function applySelection(sec) {
+  const s = state[sec];
+  const calId  = sec === 'norm' ? 'norm-calendar'  : 'actual-calendar';
+  const kpiId  = sec === 'norm' ? 'norm-kpis'      : 'actual-kpis';
+  renderCalendar(calId, sec);
+  const hasSelection = s.selWeek || s.selDay;
+  if (hasSelection) {
+    renderKpis(kpiId, kpisFromCells(s.data, s.selWeek, s.selDay));
+  } else {
+    renderKpis(kpiId, s.data.kpis);
+  }
+}
+
+// ── Section loaders ──────────────────────────────────────────────────────────
+async function loadNorm() {
+  document.getElementById('norm-kpis').innerHTML     = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
+  document.getElementById('norm-calendar').innerHTML = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
+  const p = normParams();
+  const data = await fetch(`${BASE}/api/availability/calendar?mode=normalised&${p}`).then(r => r.json());
+  state.norm.data = data;
+  renderKpis('norm-kpis', data.kpis);
+  renderCalendar('norm-calendar', 'norm');
+}
+
+async function loadActual() {
+  document.getElementById('actual-kpis').innerHTML     = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
+  document.getElementById('actual-calendar').innerHTML = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
+  const p = actualParams();
+  const data = await fetch(`${BASE}/api/availability/calendar?mode=actual&${p}`).then(r => r.json());
+  state.actual.data = data;
+  renderKpis('actual-kpis', data.kpis);
+  renderCalendar('actual-calendar', 'actual');
 }
 
 // ── Load all data ────────────────────────────────────────────────────────────
 async function loadAll() {
-  const p = params();
-
-  // Status
   fetch(`${BASE}/api/status`)
     .then(r => r.json())
     .then(d => {
@@ -500,31 +680,13 @@ async function loadAll() {
         : 'Updated: ' + new Date(d.last_refresh).toLocaleString();
     });
 
-  // Overall
   document.getElementById('overall-kpis').innerHTML = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
 
-  // Normalised calendar
-  document.getElementById('norm-kpis').innerHTML     = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
-  document.getElementById('norm-calendar').innerHTML = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
-
-  // Actual calendar
-  document.getElementById('actual-kpis').innerHTML     = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
-  document.getElementById('actual-calendar').innerHTML = `<div class="loading"><span class="spinner"></span>Loading…</div>`;
-
-  const [overallData, normData, actualData] = await Promise.all([
-    fetch(`${BASE}/api/availability/overall?${p}`).then(r => r.json()),
-    fetch(`${BASE}/api/availability/calendar?mode=normalised&${p}`).then(r => r.json()),
-    fetch(`${BASE}/api/availability/calendar?mode=actual&${p}`).then(r => r.json()),
-  ]);
-
+  const overallData = await fetch(`${BASE}/api/availability/overall`).then(r => r.json());
   renderKpis('overall-kpis', overallData.kpis);
   renderBuildingsChart(overallData.buildings);
 
-  renderKpis('norm-kpis', normData.kpis);
-  renderCalendar('norm-calendar', normData);
-
-  renderKpis('actual-kpis', actualData.kpis);
-  renderCalendar('actual-calendar', actualData);
+  await Promise.all([loadNorm(), loadActual()]);
 }
 
 // ── Boot ────────────────────────────────────────────────────────────────────
